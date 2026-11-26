@@ -1,6 +1,6 @@
 {
   "name": "@cloud-idaas/akless-alibabacloud-adapter",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "description": "IDaaS akless-alibabacloud-adapter for TypeScript and JavaScript (Node.js)",
   "license": "Apache-2.0",
   "type": "commonjs",
@@ -30,8 +30,8 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && node scripts/build-esm.cjs",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/tsconfig.json",
+    "build": "node scripts/build-version.cjs && tsc -p tsconfig.json && node scripts/build-esm.cjs",
+    "typecheck": "node scripts/build-version.cjs && tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/tsconfig.json",
     "test": "npm run build && nyc mocha --require ./test/register.cjs \"test/**/*.test.{ts,cjs}\"",
     "prepack": "npm run build",
     "lint": "eslint src test",
@@ -61,8 +61,8 @@
     "@alicloud/log": "1.2.6"
   },
   "dependencies": {
-    "@cloud-idaas/core-sdk": "0.1.0-beta.1",
-    "@cloud-idaas/pam-client-sdk": "0.1.0-beta.1",
+    "@cloud-idaas/core-sdk": "0.1.0-beta.3",
+    "@cloud-idaas/pam-client-sdk": "0.1.0-beta.3",
     "@alicloud/credentials": "2.4.7"
   },
   "publishConfig": {

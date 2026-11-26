@@ -1,4 +1,4 @@
-import Credential from '@alicloud/credentials';
+import type Credential from '@alicloud/credentials';
 import { CredentialException } from '@cloud-idaas/core-sdk';
 import {
   type AklessProviderOptions,
@@ -8,6 +8,7 @@ import {
   credentialExpiration,
   credentialString,
 } from '@cloud-idaas/pam-client-sdk';
+import { SDK_VERSION } from './sdk-version';
 
 /** Alibaba Cloud STS snapshot; inherited expiration is ISO 8601. Never log secret fields. */
 export interface AlibabaSessionCredentials extends ExpiringCredential {
@@ -56,21 +57,25 @@ export class IDaaSPamAlibabaCloudCredentialsProvider extends CachedCloudCredenti
    * @throws ConfigException - The role or configuration is invalid, or the default factory required for missing options is not initialized.
    */
   constructor(options: AklessProviderOptions) {
-    super(options, (response) => {
-      const token = response.alibabaCloudStsToken;
-      if (!token)
-        throw new CredentialException(
-          'Response is missing alibabaCloudStsToken',
-          'InvalidCredentialResponse',
-        );
-      return {
-        accessKeyId: credentialString(token.accessKeyId, 'accessKeyId'),
-        accessKeySecret: credentialString(token.accessKeySecret, 'accessKeySecret'),
-        securityToken: credentialString(token.securityToken, 'securityToken'),
-        expiration: new Date(credentialExpiration(response, token.expiration)).toISOString(),
-        providerName: 'idaas_pam',
-      };
-    });
+    super(
+      options,
+      (response) => {
+        const token = response.alibabaCloudStsToken;
+        if (!token)
+          throw new CredentialException(
+            'Response is missing alibabaCloudStsToken',
+            'InvalidCredentialResponse',
+          );
+        return {
+          accessKeyId: credentialString(token.accessKeyId, 'accessKeyId'),
+          accessKeySecret: credentialString(token.accessKeySecret, 'accessKeySecret'),
+          securityToken: credentialString(token.securityToken, 'securityToken'),
+          expiration: new Date(credentialExpiration(response, token.expiration)).toISOString(),
+          providerName: 'idaas_pam',
+        };
+      },
+      `idaas-typescript-akless-alibabacloud-adapter/${SDK_VERSION}`,
+    );
   }
   /** @returns The stable source identifier idaas_pam used by the official Credentials Provider protocol. */
   getProviderName(): string {
@@ -81,7 +86,8 @@ export class IDaaSPamAlibabaCloudCredentialsProvider extends CachedCloudCredenti
    * @returns An official Credential instance sharing the IDaaS cache; callers must still close this provider.
    */
   toAlibabaCloudCredential(): Credential {
-    return new Credential(null, this);
+    const CredentialConstructor: typeof Credential = require('@alicloud/credentials').default;
+    return new CredentialConstructor(null, this);
   }
   /**
    * Retrieves a credential snapshot and an asynchronous refresh callback for ali-oss initialization.
